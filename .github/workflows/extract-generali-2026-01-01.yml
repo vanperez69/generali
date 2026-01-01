@@ -1,0 +1,45 @@
+name: Extract generali.zip into archive
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Ensure target directory exists
+        run: mkdir -p archive/generali-2026-01-01
+
+      - name: List repository root (for debugging)
+        run: ls -la
+
+      - name: Extract generali.zip without overwriting existing files
+        run: |
+          if [ -f "generali.zip" ]; then
+            unzip -v >/dev/null 2>&1 || sudo apt-get update -y && sudo apt-get install -y unzip
+            unzip -n generali.zip -d archive/generali-2026-01-01
+          else
+            echo "generali.zip not found in repository root; aborting extraction." && exit 0
+          fi
+
+      - name: Commit and push extracted files (if any)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          git config user.name "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
+          git add --all archive/generali-2026-01-01 || true
+          if git diff --cached --quiet; then
+            echo "No new files to commit (either nothing extracted or all would have overwritten existing files)."
+            exit 0
+          fi
+          git commit -m "Extract generali.zip into archive/generali-2026-01-01/"
+          git push
