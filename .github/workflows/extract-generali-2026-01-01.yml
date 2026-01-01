@@ -1,4 +1,4 @@
-name: Extract generali.zip into archive
+name: Extract generaliag.zip into archive
 
 on:
   push:
@@ -20,13 +20,13 @@ jobs:
       - name: List repository root (for debugging)
         run: ls -la
 
-      - name: Extract generali.zip without overwriting existing files
+      - name: Extract generaliag.zip without overwriting existing files
         run: |
-          if [ -f "generali.zip" ]; then
+          if [ -f "generaliag.zip" ]; then
             unzip -v >/dev/null 2>&1 || sudo apt-get update -y && sudo apt-get install -y unzip
-            unzip -n generali.zip -d archive/generali-2026-01-01
+            unzip -n generaliag.zip -d archive/generali-2026-01-01
           else
-            echo "generali.zip not found in repository root; aborting extraction." && exit 0
+            echo "generaliag.zip not found in repository root; aborting extraction." && exit 0
           fi
 
       - name: Commit and push extracted files (if any)
@@ -41,5 +41,5 @@ jobs:
             echo "No new files to commit (either nothing extracted or all would have overwritten existing files)."
             exit 0
           fi
-          git commit -m "Extract generali.zip into archive/generali-2026-01-01/"
+          git commit -m "Extract generaliag.zip into archive/generali-2026-01-01/"
           git push
